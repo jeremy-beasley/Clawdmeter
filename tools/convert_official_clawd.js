@@ -38,7 +38,7 @@ const PALETTE_SIZE = 16;
 const STAGE_W = 55, STAGE_H = 37;
 const LOTTIE_HOLD_MS = 83;          // 12 fps
 // AA-remnant clustering threshold. Must stay below the closest real palette
-// pair — body #D97757 vs shading #BE684D are only Δ(26,14,9) apart (dist² 953).
+// pair — body #D97757 vs shading #BE684D (source art; now remapped to #F99963 / #DA8657) are only Δ(26,14,9) apart (dist² 953).
 const COLOR_MERGE_DIST2 = 600;
 
 // The catalog. `kind: 'lottie'` reads the JSON export; everything else is a

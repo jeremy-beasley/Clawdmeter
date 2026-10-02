@@ -44,7 +44,7 @@ static bool active = false;
 
 // While splash is showing, auto-cycle to the next animation in the current
 // rate-driven group every this many ms.
-#define SPLASH_ROTATE_INTERVAL_MS 20000
+#define SPLASH_ROTATE_INTERVAL_MS 300000   // 5 min
 
 // Usage-rate animation groups: 4 groups × up to 4 animations each.
 // Filled at init by matching literal names from splash_anims[].
@@ -56,9 +56,9 @@ static uint8_t group_size[GROUP_COUNT] = {0};
 static uint8_t group_rotation[GROUP_COUNT] = {0};
 
 static const char* GROUP_NAMES[GROUP_COUNT][GROUP_MAX] = {
-    // Group 0 — idle / sleepy (calm, investigative). Magnifier first: it's
-    // the boot pick, and lurking-first would boot to a near-empty screen.
-    { "magnifier", "walking", "pointing", "lurking" },
+    // Group 0 — idle / sleepy (calm). Walking first: it's the boot pick, and
+    // lurking-first would boot to a near-empty screen. (Magnifier removed.)
+    { "walking", "pointing", "lurking", NULL },
     // Group 1 — normal pace
     { "crab walking", "waving", "trumpet", "basketball" },
     // Group 2 — active (typing along with you)
@@ -92,7 +92,7 @@ static bool     in_loop = false;
 static bool     loop_release = false;
 static uint32_t loop_entered_ms = 0;
 static bool     pending_pick = false;   // rotate requested; honor at completion
-#define SCENE_LOOP_MS 6000
+#define SCENE_LOOP_MS 300000   // 5 min
 
 // ─── Walk translation ────────────────────────────────────────────────────────
 // The walk gaits animate in place; screen travel is ours, locked to the feet:

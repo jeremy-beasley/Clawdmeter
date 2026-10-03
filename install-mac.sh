@@ -12,6 +12,10 @@ DAEMON_PY="$SCRIPT_DIR/daemon/claude_usage_daemon.py"
 LOG_DIR="$HOME/Library/Logs"
 LOG_OUT="$LOG_DIR/claude-usage-daemon.out.log"
 LOG_ERR="$LOG_DIR/claude-usage-daemon.err.log"
+WARM_LABEL="com.user.claude-token-warm"
+WARM_PLIST_SRC="$SCRIPT_DIR/daemon/$WARM_LABEL.plist"
+WARM_PLIST_DST="$HOME/Library/LaunchAgents/$WARM_LABEL.plist"
+WARM_SCRIPT="$SCRIPT_DIR/daemon/claude-token-warm.sh"
 CONFIG_FILE="$HOME/.config/claude-usage-monitor/config"
 
 # Render an absolute path under $HOME back to a ~ form for tidy config entries.
@@ -205,6 +209,13 @@ sed \
     -e "s|__HOME__|${HOME}|g" \
     "$PLIST_SRC" > "$PLIST_DST"
 echo "  Installed: $PLIST_DST"
+# Token keep-warm: a periodic tiny `claude -p` so Claude Code renews the OAuth
+# token the daemon free-rides on (otherwise it expires while you're away).
+sed \
+    -e "s|__WARM_SCRIPT__|${WARM_SCRIPT}|g" \
+    -e "s|__HOME__|${HOME}|g" \
+    "$WARM_PLIST_SRC" > "$WARM_PLIST_DST"
+echo "  Installed: $WARM_PLIST_DST"
 echo ""
 
 # Interactive daemon configuration: which plans to poll, plus the optional
@@ -253,6 +264,8 @@ echo ""
 echo "[6/6] Loading launchd service..."
 launchctl unload "$PLIST_DST" 2>/dev/null || true
 launchctl load -w "$PLIST_DST"
+launchctl unload "$WARM_PLIST_DST" 2>/dev/null || true
+launchctl load -w "$WARM_PLIST_DST"
 echo "  Loaded."
 echo ""
 

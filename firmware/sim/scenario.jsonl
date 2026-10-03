@@ -9,3 +9,4 @@
 {"name":"weekly nearly gone","hold_ms":3000,"s":25.0,"sr":250,"w":96.0,"wr":300,"st":"allowed","ok":true}
 {"name":"enterprise on pace","hold_ms":3000,"s":37.0,"sr":-1,"acct":"ent","tp":40,"pd":30,"rd":"Aug 15","st":"allowed","ok":true}
 {"name":"enterprise over pace","hold_ms":4000,"s":88.0,"sr":-1,"acct":"ent","tp":52,"pd":30,"rd":"Aug 15","st":"allowed","ok":true}
+{"name":"token expired","hold_ms":4000,"ok":false,"why":"auth"}

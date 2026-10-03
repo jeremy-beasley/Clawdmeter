@@ -779,7 +779,7 @@ async def connect_and_run(target, stop_event: asyncio.Event) -> bool:
                     # be a healthy link for a full POLL_INTERVAL.
                     log("No usable token; signalling no-data to device — run "
                         "`claude login` or use the CLI to let Claude Code renew it")
-                    if await session.write_payload({"ok": False}):
+                    if await session.write_payload({"ok": False, "why": "auth"}):
                         last_poll = time.time()
                 else:
                     # Transient poll failure (a live token that didn't answer this

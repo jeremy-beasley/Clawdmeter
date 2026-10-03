@@ -96,3 +96,34 @@ def test_freeride_autherror_emits_no_data_beat():
         for w in writes
     ]
     assert {"ok": False} in payloads, f"expected a no-data beat, got writes: {payloads}"
+
+
+def test_macos_dead_token_beat_says_why_auth():
+    """The macOS daemon tags its no-data beat with why:"auth" so the firmware can show
+    "Token expired" instead of the generic "No data"."""
+    import daemon.claude_usage_daemon as mod
+    device = MagicMock(); device.address = "AA:BB:CC:DD:EE:FF"
+    client = _connected_client()
+    writes = []
+
+    async def go():
+        stop_event = asyncio.Event()
+
+        async def fake_poll_active():
+            stop_event.set()          # one poll, then unwind the loop
+            return None, True         # (payload, dead)
+
+        async def cap_write(uuid, data, response=False):
+            writes.append(data)
+
+        client.write_gatt_char = AsyncMock(side_effect=cap_write)
+        with patch.object(mod, "BleakClient", return_value=client), \
+             patch.object(mod, "poll_active", new=fake_poll_active):
+            await mod.connect_and_run(device, stop_event)
+
+    asyncio.run(go())
+    payloads = [
+        json.loads(w.decode() if isinstance(w, (bytes, bytearray)) else w)
+        for w in writes
+    ]
+    assert {"ok": False, "why": "auth"} in payloads, f"got writes: {payloads}"

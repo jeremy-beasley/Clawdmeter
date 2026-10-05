@@ -13,9 +13,15 @@ LOG="${HOME}/Library/Logs/claude-token-warm.log"
 CLAUDE="$(command -v claude || echo /opt/homebrew/bin/claude)"
 
 cd "$HOME" || exit 1
-# macOS has no `timeout`; perl's alarm bounds a hung call to 2 minutes.
-perl -e 'alarm 120; exec @ARGV' "$CLAUDE" -p "Reply with: ok" \
-    --model haiku --no-session-persistence --tools "" >/dev/null 2>&1
+# macOS has no `timeout`; perl's alarm bounds a hung call to 2 minutes. exec means
+# $? is claude's own exit code (142 = killed by the alarm).
+out=$(perl -e 'alarm 120; exec @ARGV' "$CLAUDE" -p "Reply with: ok" \
+    --model haiku --no-session-persistence --tools "" </dev/null 2>&1)
 rc=$?
-echo "$(date '+%Y-%m-%d %H:%M:%S') claude -p exit=$rc" >> "$LOG"
+if [ "$rc" -eq 0 ]; then
+    echo "$(date '+%Y-%m-%d %H:%M:%S') ok exit=0" >> "$LOG"
+else
+    # Keep the first line of output so a failure (auth, network, rate limit) is diagnosable.
+    echo "$(date '+%Y-%m-%d %H:%M:%S') FAILED exit=$rc: $(printf '%s' "$out" | head -n1 | cut -c1-200)" >> "$LOG"
+fi
 exit 0

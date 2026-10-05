@@ -15,5 +15,6 @@ struct UsageData {
     long clock_epoch;        // local wall-clock epoch (s) from daemon; 0 = not provided
     int  clock_fmt;          // 12 or 24 (hour format from daemon); defaults to 24
     bool ok;                 // data parse succeeded
+    bool auth_failed;        // {"ok":false,"why":"auth"}: daemon has no live OAuth token
     bool valid;              // false until first successful parse
 };

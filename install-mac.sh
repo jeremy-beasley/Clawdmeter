@@ -15,7 +15,10 @@ LOG_ERR="$LOG_DIR/claude-usage-daemon.err.log"
 WARM_LABEL="com.user.claude-token-warm"
 WARM_PLIST_SRC="$SCRIPT_DIR/daemon/$WARM_LABEL.plist"
 WARM_PLIST_DST="$HOME/Library/LaunchAgents/$WARM_LABEL.plist"
-WARM_SCRIPT="$SCRIPT_DIR/daemon/claude-token-warm.sh"
+WARM_SCRIPT_SRC="$SCRIPT_DIR/daemon/claude-token-warm.sh"
+# Installed OUTSIDE the repo so the job survives `git checkout` to a branch that
+# doesn't carry the script (launchd would otherwise fail with exit 127 forever).
+WARM_SCRIPT="$HOME/.local/share/clawdmeter/claude-token-warm.sh"
 CONFIG_FILE="$HOME/.config/claude-usage-monitor/config"
 
 # Render an absolute path under $HOME back to a ~ form for tidy config entries.
@@ -211,6 +214,8 @@ sed \
 echo "  Installed: $PLIST_DST"
 # Token keep-warm: a periodic tiny `claude -p` so Claude Code renews the OAuth
 # token the daemon free-rides on (otherwise it expires while you're away).
+mkdir -p "$(dirname "$WARM_SCRIPT")"
+install -m 755 "$WARM_SCRIPT_SRC" "$WARM_SCRIPT"
 sed \
     -e "s|__WARM_SCRIPT__|${WARM_SCRIPT}|g" \
     -e "s|__HOME__|${HOME}|g" \

@@ -98,9 +98,8 @@ def test_freeride_autherror_emits_no_data_beat():
     assert {"ok": False} in payloads, f"expected a no-data beat, got writes: {payloads}"
 
 
-def test_macos_dead_token_beat_says_why_auth():
-    """The macOS daemon tags its no-data beat with why:"auth" so the firmware can show
-    "Token expired" instead of the generic "No data"."""
+def _dead_beat(dead):
+    """Drive one dead-token poll and return the JSON payloads written to the device."""
     import daemon.claude_usage_daemon as mod
     device = MagicMock(); device.address = "AA:BB:CC:DD:EE:FF"
     client = _connected_client()
@@ -111,7 +110,7 @@ def test_macos_dead_token_beat_says_why_auth():
 
         async def fake_poll_active():
             stop_event.set()          # one poll, then unwind the loop
-            return None, True         # (payload, dead)
+            return None, dead         # (payload, dead)
 
         async def cap_write(uuid, data, response=False):
             writes.append(data)
@@ -126,4 +125,31 @@ def test_macos_dead_token_beat_says_why_auth():
         json.loads(w.decode() if isinstance(w, (bytes, bytearray)) else w)
         for w in writes
     ]
-    assert {"ok": False, "why": "auth"} in payloads, f"got writes: {payloads}"
+    return payloads
+
+
+def test_macos_expired_token_beat_says_why_auth():
+    """A present-but-expired token (401) → why:"auth" → firmware shows "Token expired"."""
+    assert {"ok": False, "why": "auth"} in _dead_beat("auth")
+
+
+def test_macos_missing_token_beat_says_why_login():
+    """No token at all (logged out / session expired) → why:"login" → firmware shows
+    "Login needed"."""
+    assert {"ok": False, "why": "login"} in _dead_beat("login")
+
+
+def test_poll_active_reports_login_vs_auth(monkeypatch):
+    """poll_active distinguishes 'no token anywhere' from 'token present but 401'."""
+    import daemon.claude_usage_daemon as mod
+    from pathlib import Path
+    monkeypatch.setattr(mod, "read_config_dirs", lambda: [Path("/x")])
+
+    monkeypatch.setattr(mod, "read_token_for", lambda d: None)
+    assert asyncio.run(mod.poll_active())[1] == "login"
+
+    async def expired(token):
+        raise mod.TokenExpired()
+    monkeypatch.setattr(mod, "read_token_for", lambda d: "tok")
+    monkeypatch.setattr(mod, "poll_api", expired)
+    assert asyncio.run(mod.poll_active())[1] == "auth"

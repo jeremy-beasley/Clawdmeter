@@ -120,7 +120,9 @@ static bool parse_json(const char* json, UsageData* out) {
     out->clock_epoch = doc["t"] | 0L;
     out->clock_fmt = doc["tf"] | 24;
     out->ok = doc["ok"] | false;
-    out->auth_failed = !out->ok && strcmp(doc["why"] | "", "auth") == 0;
+    const char* why = doc["why"] | "";
+    out->auth_failed   = !out->ok && strcmp(why, "auth")  == 0;
+    out->login_needed  = !out->ok && strcmp(why, "login") == 0;
     out->valid = true;
     return true;
 }

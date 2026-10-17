@@ -15,6 +15,7 @@ struct UsageData {
     long clock_epoch;        // local wall-clock epoch (s) from daemon; 0 = not provided
     int  clock_fmt;          // 12 or 24 (hour format from daemon); defaults to 24
     bool ok;                 // data parse succeeded
-    bool auth_failed;        // {"ok":false,"why":"auth"}: daemon has no live OAuth token
+    bool auth_failed;        // {"ok":false,"why":"auth"}: OAuth token expired (Claude Code renews it)
+    bool login_needed;       // {"ok":false,"why":"login"}: no token — user must run `claude login`
     bool valid;              // false until first successful parse
 };

@@ -545,9 +545,9 @@ async def poll_active(selector: PlanSelector = _SELECTOR) -> tuple[dict | None, 
     yields a usable payload this cycle. A single configured dir (the default)
     collapses to exactly the old single-poll path.
 
-    ``all_dead`` — True when *every* configured dir lacked a usable token this
+    ``all_dead`` — truthy when *every* configured dir lacked a usable token this
     cycle (file/Keychain empty, or a 401/expired token), so the caller can
-    signal "No data". False when at least one token authenticated — including a
+    signal the device ("auth" for an expired token, "login" for no token). False when at least one token authenticated — including a
     transient non-auth poll failure worth retrying silently rather than idling.
 
     Pure free-ride: a 401 (TokenExpired) means that dir's token has expired and
@@ -557,6 +557,7 @@ async def poll_active(selector: PlanSelector = _SELECTOR) -> tuple[dict | None, 
     payloads: dict[Path, dict] = {}
     sessions: dict[Path, int] = {}
     any_live = False
+    any_expired = False
     for d in dirs:
         token = read_token_for(d)
         if not token:
@@ -566,6 +567,7 @@ async def poll_active(selector: PlanSelector = _SELECTOR) -> tuple[dict | None, 
             payload = await poll_api(token)
         except TokenExpired:
             log(f"Token in {d} expired/invalid; skipping")
+            any_expired = True
             continue
         # Authenticated: a transient None here isn't an auth failure, so the
         # dir counts as live and we stay silent rather than idling the device.
@@ -574,7 +576,11 @@ async def poll_active(selector: PlanSelector = _SELECTOR) -> tuple[dict | None, 
             payloads[d] = payload
             sessions[d] = int(payload.get("s", 0) or 0)
     if not payloads:
-        return None, not any_live
+        # ``dead`` is falsy when a dir is live, else the reason the device should
+        # show: "auth" = a token exists but expired (Claude Code renews it on its
+        # next use), "login" = no token at all (logged out / session expired —
+        # the user has to run `claude login`).
+        return None, ("" if any_live else ("auth" if any_expired else "login"))
     active = selector.choose(sessions)
     if len(dirs) > 1:
         log(f"Active plan: {active} (s={sessions[active]})")
@@ -779,7 +785,8 @@ async def connect_and_run(target, stop_event: asyncio.Event) -> bool:
                     # be a healthy link for a full POLL_INTERVAL.
                     log("No usable token; signalling no-data to device — run "
                         "`claude login` or use the CLI to let Claude Code renew it")
-                    if await session.write_payload({"ok": False, "why": "auth"}):
+                    why = dead if isinstance(dead, str) else "auth"
+                    if await session.write_payload({"ok": False, "why": why}):
                         last_poll = time.time()
                 else:
                     # Transient poll failure (a live token that didn't answer this

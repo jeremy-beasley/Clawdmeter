@@ -229,6 +229,7 @@ static lv_image_dsc_t battery_dscs[5];  // empty, low, medium, full, charging
 static lv_obj_t* idle_group;            // the "Zzz" idle screen
 static uint32_t  last_data_ms = 0;      // lv_tick when the last valid usage update landed
 static bool      data_received = false; // any valid update since boot
+static bool      data_login_needed = false;  // last {"ok":false} said why:"login" → show "Login needed"
 static bool      data_auth_failed = false;  // last {"ok":false} said why:"auth" → show "Token expired"
 static bool      data_ok = true;        // last payload's ok flag; a {"ok":false} beat = "no fresh data"
 static int       view_state = -1;       // -1 unknown / 0 pair / 1 idle / 2 usage
@@ -595,6 +596,7 @@ void ui_update(const UsageData* data) {
     if (!data->valid) return;
     data_ok = data->ok;
     data_auth_failed = data->auth_failed;
+    data_login_needed = data->login_needed;
     if (!data->ok) return;          // a {"ok":false} "no data" beat → fall through to idle, keep last numbers
     last_data_ms = lv_tick_get();   // a real usage update just landed
     data_received = true;
@@ -744,7 +746,8 @@ void ui_tick_anim(void) {
     if (!s_ble_connected) {
         text = "Waiting";              // advertising / waiting for a host connection
     } else if (view_state == 1) {      // idle — alternate so it reads as alive AND data-less
-        if (data_auth_failed)      text = "Token expired";
+        if (data_login_needed)     text = "Login needed";
+        else if (data_auth_failed) text = "Token expired";
         else                       text = (anim_msg_idx & 1) ? "No data" : "Listening";
     } else if (now - connected_at_ms < 5000) {
         text = "Connected";

@@ -639,9 +639,9 @@ void ui_update(const UsageData* data) {
     // Pace vars used in both enterprise blocks below
     const char* pace_text = "Under pace";
     lv_color_t  pace_color = COL_GREEN;
-    const char* pace_hex   = "788c5d";   // matches THEME_GREEN
+    const char* pace_hex   = "8da56a";   // matches THEME_GREEN
     if (data->session_pct > (float)data->time_pct + 15.0f) {
-        pace_text = "Over pace";  pace_color = COL_RED;   pace_hex = "c0392b";
+        pace_text = "Over pace";  pace_color = COL_RED;   pace_hex = "d4483a";
     } else if (data->session_pct > (float)data->time_pct - 15.0f) {
         pace_text = "On pace";    pace_color = COL_AMBER; pace_hex = "ffa052";
     }

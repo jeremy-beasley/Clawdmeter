@@ -5,6 +5,8 @@
 
 LV_FONT_DECLARE(font_tiempos_56);
 LV_FONT_DECLARE(font_tiempos_34);
+LV_FONT_DECLARE(font_styrene_56);
+LV_FONT_DECLARE(font_styrene_34);
 LV_FONT_DECLARE(font_styrene_48);
 LV_FONT_DECLARE(font_styrene_28);
 LV_FONT_DECLARE(font_styrene_24);
@@ -86,7 +88,7 @@ static int16_t widest_clock(const lv_font_t* f, bool h12) {
 
 // Fonts a title steps down through, largest first.
 static const lv_font_t* const TITLE_FONTS[] = {
-    &font_tiempos_56, &font_tiempos_34, &font_styrene_24, &font_styrene_16, &font_styrene_14,
+    &font_styrene_56, &font_styrene_34, &font_styrene_24, &font_styrene_16, &font_styrene_14,
 };
 #define TITLE_FONT_COUNT (int)(sizeof(TITLE_FONTS) / sizeof(TITLE_FONTS[0]))
 

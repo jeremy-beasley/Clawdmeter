@@ -8,13 +8,13 @@ asset notice).
 ```bash
 npm install -g lv_font_conv@1.5.3
 
-for size in 56 34; do
+for size in 56 34; do   # ent_pct only; the title/clock is Styrene B
   lv_font_conv --font assets/TiemposText-400-Regular.otf -r 0x20-0x7E \
     --size "$size" --format lvgl --bpp 4 --no-compress \
     -o "firmware/src/font_tiempos_${size}.c" --lv-include "lvgl.h"
 done
 
-for size in 48 28 24 20 16 14 12; do
+for size in 56 48 34 28 24 20 16 14 12; do
   lv_font_conv --font assets/StyreneB-Regular.otf -r 0x20-0x7E \
     --size "$size" --format lvgl --bpp 4 --no-compress \
     -o "firmware/src/font_styrene_${size}.c" --lv-include "lvgl.h"

@@ -10,7 +10,9 @@
 // Custom fonts (scaled for 314 PPI, ~1.9x from original 165 PPI)
 LV_FONT_DECLARE(font_tiempos_56);
 LV_FONT_DECLARE(font_tiempos_34);
+LV_FONT_DECLARE(font_styrene_56);
 LV_FONT_DECLARE(font_styrene_48);
+LV_FONT_DECLARE(font_styrene_34);
 LV_FONT_DECLARE(font_styrene_28);
 LV_FONT_DECLARE(font_styrene_24);
 LV_FONT_DECLARE(font_styrene_20);
@@ -85,7 +87,7 @@ static void compute_layout(const BoardCaps& c) {
     L.panel_pad_y = 12;
     L.pill_pad_x = 18;
     L.pill_pad_y = 6;
-    L.title_font   = &font_tiempos_56;
+    L.title_font   = &font_styrene_56;
     L.pct_font     = &font_styrene_48;
     L.ent_pct_font = &font_tiempos_56;
     L.pill_font    = &font_styrene_28;
@@ -147,7 +149,7 @@ static void compute_layout(const BoardCaps& c) {
         L.panel_pad_y = 6;
         L.pill_pad_x = 8;
         L.pill_pad_y = 2;
-        L.title_font   = &font_tiempos_34;
+        L.title_font   = &font_styrene_34;
         L.pct_font     = &font_styrene_24;
         L.ent_pct_font = &font_tiempos_34;
         L.pill_font    = &font_styrene_14;

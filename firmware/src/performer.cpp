@@ -30,14 +30,14 @@ static bool      shown = false;                // img not hidden
 #define GROUP_COUNT 4
 #define GROUP_MAX   4
 static const char* const GROUP_NAMES[GROUP_COUNT][GROUP_MAX] = {
-    { "magnifier", "walking", "pointing", "lurking" },        // idle / sleepy
+    { "walking", "pointing", "lurking", NULL },               // idle / sleepy (no magnifier)
     { "crab walking", "waving", "trumpet", "basketball" },    // normal pace
     { "laptop", "dancing", "skateboard", "soccer" },          // active
     { "racing car", "cloud", "sailing scene", "jumping happy" }, // heavy burn
 };
 // The screensaver's calm dips: gentle Idle-group scenes only (lurking is a
 // corner act and pointing is his "noticing" gesture).
-static const char* const CALM_NAMES[] = { "magnifier", "walking" };
+static const char* const CALM_NAMES[] = { "walking" };   // magnifier dropped
 
 // ─── Performer ───────────────────────────────────────────────────────────────
 enum PerfState { P_OFF, P_STAND, P_WALK, P_SCENE, P_CHOREO };

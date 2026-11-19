@@ -38,7 +38,7 @@ void performer_run_off(int side, uint16_t from_pct, uint16_t to_pct, uint32_t ra
 // ends standing. Walker scenes (walking, crab walking) do one round trip.
 void performer_perform(int anim_index, uint32_t loop_ms);
 // Pick a scene from mood group 0..3 and perform it. calm = only the gentle
-// Idle-group scenes (magnifier, walking). Never the same scene twice running
+// Idle-group scenes (walking only in this fork). Never the same scene twice running
 // (tracked separately for shows and calm dips).
 void performer_perform_group(int group, uint32_t loop_ms, bool calm);
 void performer_release(void);   // stop now, snap to the idle pose where he is
